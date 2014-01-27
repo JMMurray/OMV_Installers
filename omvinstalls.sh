@@ -4,7 +4,7 @@ clear;
 # My Junk Stuff #
 ################################################################################
 #Setup Downloaders Miller style
-#wget https://raw.github.com/cptjhmiller/OMV_Installers/master/omv.sh
+#wget https://raw2.github.com/JMMurray/OMV_Installers/master/omv.sh
 #chmod a+x omv.sh
 #./omv.sh
 #3 5 8 9 10 11 12 15 16 17 18
@@ -484,6 +484,20 @@ rm -fR /var/www/openmediavault/js/omv/module/SickBeard.js > /dev/null 2>&1
 rm -Rf /var/www/openmediavault/js/omv/module/admin/service/SickBeard > /dev/null 2>&1
 }
 
+Uninstall_SickBeardAnime()
+{
+uinst="1"
+echo "uninstalling................SickBeard Anime"
+service sickbeard stop > /dev/null 2>&1
+sleep 2
+update-rc.d -f sickbeard remove > /dev/null 2>&1
+rm -fR /etc/init.d/sickbeard > /dev/null 2>&1
+rm -fR $INSTALLDIR/sickbeard > /dev/null 2>&1
+rm -fR /var/www/openmediavault/images/SickBeard.png > /dev/null 2>&1
+rm -fR /var/www/openmediavault/js/omv/module/SickBeard.js > /dev/null 2>&1
+rm -Rf /var/www/openmediavault/js/omv/module/admin/service/SickBeard > /dev/null 2>&1
+}
+
 Uninstall_Htpc()
 {
 uinst="1"
@@ -822,6 +836,7 @@ bbs="0"
 htpc="0"
 uml="0"
 xdm="0"
+sba="0"
 ucpv="0"
 ucpm="0"
 ucpd="0"
@@ -845,6 +860,7 @@ ugz="0"
 ubbs="0"
 uxdm="0"
 uhtpc="0"
+usba="0"
 #sleep 3
 cd /tmp
 #Menu & python option
@@ -867,6 +883,7 @@ echo "           9. Sabnzbdplus                   18. Extplorer"
 echo "          19. MyLar                         20. Music Cabinet"
 echo "          21. GameZ                         22. BicBucStriim"
 echo "          23. XDM                           24. HTPC Manager"
+echo "          25. SickBeard Anime"
 echo ""
 echo "                                 Q. Quit"
 if [ "$INSTALLDIR" == "" ]; then
@@ -977,6 +994,9 @@ Uninstall_XDM;
 -24)
 Uninstall_Htpc;
 ;;
+# Uninstall SickBeard Anime
+-25)
+Uninstall_SickBeardAnime;
 # CouchPotato
 1)
 cpv="1"
@@ -1073,6 +1093,9 @@ xdm="1"
 24)
 htpc="1"
 ;;
+# SickBeard Anime
+25)
+sba="1"
 # Change IP address
 I|i)
 changeip;
@@ -1120,7 +1143,7 @@ if [ "$cpv" = "1" -a "$cpd" = "1" -o "$cpv" = "1" -a "$cpm" = "1" -o "$cpd" = "1
 	sameapp;
 fi
 
-if [ "$sbt" = "1" -a "$sbd" = "1" -o "$sbt" = "1" -a "$sbm" = "1" -o "$sbd" = "1" -a "$sbm" = "1" ]; then
+if [ "$sbt" = "1" -a "$sbd" = "1" -o "$sbt" = "1" -a "$sbm" = "1" -o "$sbd" = "1" -a "$sbm" = "1" -a "$sba" = "1"]; then
 	sameapp;
 fi
 
@@ -1174,6 +1197,10 @@ fi
 
 if [ "$sbt" = "1" ]; then
 	echo "               SickBeard - Torrent Branch";
+fi
+
+if [ "$sba" = "1" ]; then
+    echo "               SickBeard - Anime Branch"];
 fi
 
 if [ "$sub" = "1" ]; then
@@ -1465,7 +1492,7 @@ if [ "$hpm" == "1" -o "$hpd" == "1" ]; then
 	install_HP;
 fi
 
-if [ "$sbm" == "1" -o "$sbd" == "1" -o "$sbt" == "1" ]; then
+if [ "$sbm" == "1" -o "$sbd" == "1" -o "$sbt" == "1" -o "$sba" == "1" ]; then
 	install_SB;
 fi
 
@@ -2415,6 +2442,15 @@ elif [ "$sbt" == "1" ]; then
 		echo >&2 "git clone SickBeard failed with exit status $ret"
 		exit 1
 	fi
+elif [ "$sba" == "1" ]; then
+    echo "                           ANIME BRANCH"
+    echo "Downloading and installing SickBeard.....";
+    git clone git://github.com/lad1337/Sick-Beard.git -b anime_development new_SB > /dev/null
+    ret=$?
+    if ! test "$ret" -eq 0; then
+        echo >&2 "git clone SickBeard failed with exit status $ret"
+        exit 1
+    fi
 fi
 if [ -d $INSTALLDIR/sickbeard ]; then
 	cp -fRa /tmp/new_SB/. $INSTALLDIR/sickbeard
@@ -4510,7 +4546,7 @@ if [ "$hpm" == "1" -o "$hpd" == "1" ]; then
 	echo "    	Headphones    ---     http://$ip:8181";
 fi
 
-if [ "$sbm" == "1" -o "$sbd" == "1" -o "$sbt" == "1" ]; then
+if [ "$sbm" == "1" -o "$sbd" == "1" -o "$sbt" == "1" -o "$sba" == "1"]; then
 	check="1"
 	echo "    	SickBeard     ---     http://$ip:8081"
 fi
